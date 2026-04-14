@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Webot Commander | Editable Labels + Links | Stable Version</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-body: #87CEEB;
+      --tab-bar: #000000;
+      --tab-inactive: #2a2a2a;
+      --tab-active: #1a1a1a;
+      --panel-bg: #ffffff;
+      --text-primary: #1a1a1a;
+      --text-secondary: #555555;
+      --card-shadow: rgba(0,0,0,0.15);
+      --search-bg: #ffffff;
+      --search-border: #cccccc;
+      --toolbar-bg: #f0f0f0;
+      --success-color: #27ae60;
+      --warning-color: #e67e22;
+      --danger-color: #c0392b;
+    }
+    body.dark-mode {
+      --bg-body: #1a2a3a;
+      --tab-bar: #0a0a0a;
+      --tab-inactive: #2a2a2a;
+      --tab-active: #0a0a0a;
+      --panel-bg: #1e1e2e;
+      --text-primary: #e0e0e0;
+      --text-secondary: #aaaaaa;
+      --card-shadow: rgba(0,0,0,0.4);
+      --search-bg: #2d2d3a;
+      --search-border: #4a4a5a;
+      --toolbar-bg: #252530;
+    }
+    body {
+      background: var(--bg-body);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      transition: background 0.3s;
+      min-height: 100vh;
+    }
+    .container { max-width: 1400px; margin: 0 auto; background: transparent; }
+    .header {
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(8px);
+      border-radius: 28px 28px 0 0;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .dark-toggle {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      border: none;
+      color: white;
+      padding: 6px 18px;
+      border-radius: 40px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .toolbar {
+      background: var(--toolbar-bg);
+      margin: 0 10px;
+      padding: 12px 24px;
+      border-radius: 60px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .search-box {
+      flex: 1;
+      display: flex;
+      background: var(--search-bg);
+      border: 1px solid var(--search-border);
+      border-radius: 40px;
+      padding: 5px 18px;
+      align-items: center;
+      gap: 8px;
+    }
+    .search-box input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 10px 0;
+      outline: none;
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+    button {
+      background: var(--tab-inactive);
+      border: none;
+      padding: 8px 20px;
+      border-radius: 32px;
+      color: white;
+      cursor: pointer;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+    button:hover { filter: brightness(1.1); transform: scale(0.97); }
+    .btn-success { background: var(--success-color); }
+    .btn-warning { background: var(--warning-color); }
+    .btn-danger { background: var(--danger-color); }
+    .info-badge {
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--search-bg);
+      padding: 5px 14px;
+      border-radius: 30px;
+    }
+    .tabs {
+      background: var(--tab-bar);
+      border-radius: 18px 18px 0 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 10px 16px 0 16px;
+      margin-top: 18px;
+    }
+    .tab {
+      background: var(--tab-inactive);
+      color: #eee;
+      border: none;
+      padding: 8px 22px;
+      border-radius: 16px 16px 0 0;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .tab.active {
+      background: var(--tab-active);
+      border-bottom: 3px solid #ffaa55;
+      color: white;
+    }
+    .panels {
+      background: var(--panel-bg);
+      border-radius: 0 0 24px 24px;
+      padding: 28px 24px;
+      min-height: 550px;
+    }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .buttons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 22px;
+    }
+    .action-btn {
+      background: #e74c3c;
+      border-radius: 20px;
+      padding: 16px 12px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 6px 12px var(--card-shadow);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .action-btn:hover { transform: translateY(-3px); filter: brightness(1.02); }
+    .btn-title {
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+      text-align: center;
+      padding-right: 28px;
+      padding-left: 28px;
+      word-break: break-word;
+    }
+    .btn-id {
+      font-size: 11px;
+      opacity: 0.85;
+      text-align: center;
+      font-family: monospace;
+      margin-bottom: 8px;
+    }
+    .btn-link-preview {
+      font-size: 10px;
+      opacity: 0.75;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: monospace;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 5px 8px;
+      border-radius: 40px;
+      margin-top: 6px;
+    }
+    .edit-icon, .edit-label-icon {
+      position: absolute;
+      top: 12px;
+      width: 30px;
+      height: 30px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .edit-icon { right: 14px; }
+    .edit-label-icon { left: 14px; }
+    .drag-handle {
+      position: absolute;
+      bottom: 10px;
+      left: 12px;
+      font-size: 18px;
+      cursor: grab;
+      opacity: 0.5;
+      background: rgba(0, 0, 0, 0.3);
+      width: 28px;
+      border-radius: 30px;
+      text-align: center;
+    }
+    .save-indicator, .notification {
+      position: fixed;
+      background: var(--success-color);
+      color: white;
+      padding: 8px 18px;
+      border-radius: 40px;
+      font-size: 13px;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.25s;
+      pointer-events: none;
+    }
+    .save-indicator { top: 20px; right: 20px; }
+    .notification { bottom: 30px; right: 30px; background: #1e2a2e; border-left: 5px solid #ffaa55; }
+    .save-indicator.show, .notification.show { opacity: 1; }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 2100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: var(--panel-bg);
+      color: var(--text-primary);
+      padding: 28px;
+      border-radius: 32px;
+      width: 90%;
+      max-width: 600px;
+    }
+    .modal-content input, .modal-content textarea {
+      width: 100%;
+      margin: 15px 0;
+      padding: 12px;
+      font-family: monospace;
+      background: var(--search-bg);
+      color: var(--text-primary);
+      border: 1px solid var(--search-border);
+      border-radius: 20px;
+    }
+    .modal-buttons { display: flex; gap: 14px; justify-content: flex-end; margin-top: 10px; }
+    @media (max-width: 700px) { .buttons-grid { grid-template-columns: 1fr; } }
+    footer { margin-top: 28px; text-align: center; font-size: 12px; opacity: 0.7; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div style="font-size: 26px; font-weight: bold; color: white; text-shadow: 2px 2px 0 black;">⚡ WEBOT COMMANDER</div>
+    <button class="dark-toggle" id="darkModeBtn">🌙 Dark</button>
+  </div>
+  <div class="toolbar">
+    <div class="search-box"><span>🔍</span><input type="text" id="searchInput" placeholder="Search..."></div>
+    <button id="clearSearchBtn">Clear</button>
+    <button id="exportBtn" class="btn-success">Export JSON</button>
+    <button id="importBtn" class="btn-warning">Import JSON</button>
+    <button id="resetBtn" class="btn-danger">Reset Defaults</button>
+    <div class="info-badge">✏️ Edit Label | 🔗 Edit Link | 💾 Auto-save</div>
+  </div>
+  <div class="tabs" id="tabsContainer"></div>
+  <div class="panels" id="panelsContainer"></div>
+  <footer>🔧 Click ✎🏷️ to edit button name | Click 🔗✏️ to edit URL | Changes auto-save</footer>
+</div>
+<div class="save-indicator" id="saveIndicator">Saved</div>
+<div class="notification" id="notification">Ready</div>
+
+<script>
+// DATA CONFIGURATION
+const TAB_LETTERS = ['A','B','C','D','E','F','G','H','I','J'];
+const TAB_NAMES = ["MEDIA","BROWSERS","DEV TOOLS","GAMES","NETWORK","SYSTEM","GRAPHICS","OFFICE","AUDIO","UTILITIES"];
+const DEFAULT_LINK = "http://localhost:9000/launch/";
+const DEFAULT_LABELS = {
+  A: ["VLC Player","Firefox","Terminal","File Manager","System Monitor","Text Editor","Calculator","Screenshot","Disk Usage","Package Updater"],
+  B: ["Chrome","Brave","Edge","Tor Browser","Opera","Vivaldi","Chromium","Firefox Dev","LibreWolf","Epiphany"],
+  C: ["VS Code","Git GUI","Docker","Postman","Node.js","Python IDE","MySQL Workbench","Jenkins","Kubernetes","DevTools"],
+  D: ["Steam","Lutris","Minecraft","SuperTuxKart","0 A.D.","Wesnoth","OpenRA","Battle for Wesnoth","Prism Launcher","RetroArch"],
+  E: ["Network Manager","Wireshark","Zenmap","Ping Tool","Netdata","OpenVPN","SSH Manager","Remote Desktop","FTP Client","Bandwidth"],
+  F: ["System Logs","Task Manager","Kernel Monitor","Backup Tool","Disk Partitioner","Service Manager","User Accounts","Date/Time","Firewall","GRUB Editor"],
+  G: ["GIMP","Inkscape","Krita","Blender","Darktable","Shotwell","Pinta","RawTherapee","MyPaint","ImageMagick"],
+  H: ["LibreOffice Writer","LibreOffice Calc","Impress","OnlyOffice","PDF Viewer","Calendar","Evolution Mail","Thunderbird","Zim Wiki","Scanner"],
+  I: ["Audacity","Spotify","Rhythmbox","Clementine","Sound Recorder","PulseAudio","Jack Control","LMMS","Hydrogen","Mixxx"],
+  J: ["VirtualBox","WineGUI","Synaptic","Timeshift","Stacer","BleachBit","Gnome Tweaks","Flatpak","AppImageLauncher","Conky"]
+};
+const TAB_COLORS = ["#e74c3c","#2c7a6e","#8e44ad","#e67e22","#2c5282","#c0392b","#27ae60","#d35400","#2980b9","#8e44ad"];
+
+// GLOBAL STATE
+let activeTab = 0;
+let dragSource = null;
+let buttonData = new Map();
+
+// Helper Functions
+function showNotification(msg, isError = false) {
+  const n = document.getElementById('notification');
+  n.textContent = isError ? `⚠️ ${msg}` : `✅ ${msg}`;
+  n.classList.add('show');
+  setTimeout(() => n.classList.remove('show'), 2000);
+}
+
+function saveToLocalStorage() {
+  const saveData = {};
+  for (let [id, data] of buttonData.entries()) {
+    saveData[id] = { link: data.link, label: data.label };
+  }
+  localStorage.setItem('webot_data', JSON.stringify(saveData));
+  document.getElementById('saveIndicator').classList.add('show');
+  setTimeout(() => document.getElementById('saveIndicator').classList.remove('show'), 1000);
+}
+
+function loadFromLocalStorage() {
+  const saved = localStorage.getItem('webot_data');
+  if (!saved) return false;
+  try {
+    const parsed = JSON.parse(saved);
+    let loaded = 0;
+    for (let [id, data] of Object.entries(parsed)) {
+      if (buttonData.has(id) && data.link && data.label) {
+        buttonData.set(id, { link: data.link, label: data.label });
+        loaded++;
+      }
+    }
+    if (loaded > 0) showNotification(`Loaded ${loaded} saved buttons`);
+    return loaded > 0;
+  } catch(e) { return false; }
+}
+
+function initDefaultData() {
+  for (let letter of TAB_LETTERS) {
+    const labels = DEFAULT_LABELS[letter];
+    for (let i = 0; i < 10; i++) {
+      const id = `${letter}${i+1}`;
+      buttonData.set(id, {
+        link: DEFAULT_LINK + id.toLowerCase(),
+        label: labels[i]
+      });
+    }
+  }
+}
+
+function resetToDefaults() {
+  if (confirm('Reset all buttons to factory defaults? Your custom labels and links will be lost.')) {
+    buttonData.clear();
+    initDefaultData();
+    saveToLocalStorage();
+    rebuildAllButtons();
+    showNotification('Reset to default configuration');
+  }
+}
+
+function executeCommand(link, id, label) {
+  const url = link + (link.includes('?') ? '&' : '?') + '_cb=' + Date.now();
+  fetch(url, { method: 'GET', mode: 'no-cors', cache: 'no-store' }).catch(e => console.log);
+  showNotification(`${id}: ${label} launching`);
+}
+
+function editLink(btnElement, currentLink, id, label) {
+  const newLink = prompt(`Edit URL for ${id} (${label}):`, currentLink);
+  if (newLink && newLink.trim()) {
+    const data = buttonData.get(id);
+    data.link = newLink.trim();
+    buttonData.set(id, data);
+    btnElement.querySelector('.btn-link-preview').textContent = newLink.length > 48 ? newLink.substring(0,45)+'...' : newLink;
+    saveToLocalStorage();
+    showNotification(`${id} URL updated`);
+  }
+}
+
+function editLabel(btnElement, id, currentLabel) {
+  const newLabel = prompt(`Edit button name for ${id}:`, currentLabel);
+  if (newLabel && newLabel.trim()) {
+    const data = buttonData.get(id);
+    data.label = newLabel.trim().substring(0, 40);
+    buttonData.set(id, data);
+    btnElement.querySelector('.btn-title').textContent = data.label;
+    saveToLocalStorage();
+    showNotification(`Label updated: ${data.label}`);
+  }
+}
+
+function createButton(id, color) {
+  const data = buttonData.get(id);
+  if (!data) return document.createElement('div');
+  
+  const btn = document.createElement('div');
+  btn.className = 'action-btn';
+  btn.setAttribute('draggable', 'true');
+  btn.setAttribute('data-id', id);
+  btn.style.background = color;
+  btn.innerHTML = `
+    <div class="drag-handle">⋮⋮</div>
+    <div class="edit-label-icon" title="Edit button name">✎🏷️</div>
+    <div class="edit-icon" title="Edit URL">🔗✏️</div>
+    <div class="btn-title">${escapeHtml(data.label)}</div>
+    <div class="btn-id">${id}</div>
+    <div class="btn-link-preview">${data.link.length > 48 ? data.link.substring(0,45)+'...' : escapeHtml(data.link)}</div>
+  `;
+  
+  btn.addEventListener('click', (e) => {
+    if (e.target.classList.contains('edit-label-icon') || e.target.classList.contains('edit-icon') || e.target.classList.contains('drag-handle')) return;
+    const d = buttonData.get(id);
+    executeCommand(d.link, id, d.label);
+  });
+  
+  btn.querySelector('.edit-icon').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const d = buttonData.get(id);
+    editLink(btn, d.link, id, d.label);
+  });
+  
+  btn.querySelector('.edit-label-icon').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const d = buttonData.get(id);
+    editLabel(btn, id, d.label);
+  });
+  
+  // Drag drop
+  btn.addEventListener('dragstart', (e) => { dragSource = btn; e.dataTransfer.effectAllowed = 'move'; });
+  btn.addEventListener('dragover', (e) => { e.preventDefault(); });
+  btn.addEventListener('drop', (e) => {
+    e.preventDefault();
+    if (dragSource && dragSource !== btn && dragSource.parentNode === btn.parentNode) {
+      const parent = btn.parentNode;
+      const children = Array.from(parent.children);
+      const srcIdx = children.indexOf(dragSource);
+      const dstIdx = children.indexOf(btn);
+      if (srcIdx < dstIdx) parent.insertBefore(dragSource, btn.nextSibling);
+      else parent.insertBefore(dragSource, btn);
+      saveToLocalStorage();
+    }
+  });
+  
+  return btn;
+}
+
+function rebuildAllButtons() {
+  const panelsContainer = document.getElementById('panelsContainer');
+  panelsContainer.innerHTML = '';
+  
+  for (let t = 0; t < TAB_LETTERS.length; t++) {
+    const letter = TAB_LETTERS[t];
+    const panel = document.createElement('div');
+    panel.className = 'panel' + (t === activeTab ? ' active' : '');
+    const grid = document.createElement('div');
+    grid.className = 'buttons-grid';
+    const color = TAB_COLORS[t];
+    
+    for (let i = 0; i < 10; i++) {
+      const id = `${letter}${i+1}`;
+      grid.appendChild(createButton(id, color));
+    }
+    panel.appendChild(grid);
+    panelsContainer.appendChild(panel);
+  }
+}
+
+function rebuildTabs() {
+  const tabsContainer = document.getElementById('tabsContainer');
+  tabsContainer.innerHTML = '';
+  for (let i = 0; i < TAB_NAMES.length; i++) {
+    const tab = document.createElement('button');
+    tab.className = 'tab' + (i === activeTab ? ' active' : '');
+    tab.textContent = TAB_NAMES[i];
+    tab.onclick = () => {
+      activeTab = i;
+      document.querySelectorAll('.tab').forEach((t, idx) => {
+        t.classList.toggle('active', idx === i);
+      });
+      document.querySelectorAll('.panel').forEach((p, idx) => {
+        p.classList.toggle('active', idx === i);
+      });
+    };
+    tabsContainer.appendChild(tab);
+  }
+}
+
+function exportData() {
+  const exportObj = {};
+  for (let [id, data] of buttonData.entries()) {
+    exportObj[id] = { link: data.link, label: data.label };
+  }
+  const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `webot_backup_${new Date().toISOString().slice(0,19)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showNotification('Configuration exported');
+}
+
+function importData(jsonData) {
+  try {
+    const imported = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
+    let count = 0;
+    for (let [id, value] of Object.entries(imported)) {
+      if (buttonData.has(id) && value.link && value.label) {
+        buttonData.set(id, { link: value.link, label: value.label.substring(0, 40) });
+        count++;
+      }
+    }
+    if (count > 0) {
+      saveToLocalStorage();
+      rebuildAllButtons();
+      showNotification(`Imported ${count} buttons`);
+    } else {
+      showNotification('No valid buttons found', true);
+    }
+  } catch(e) {
+    alert('Invalid JSON file');
+  }
+}
+
+function setupSearch() {
+  const searchInput = document.getElementById('searchInput');
+  const clearBtn = document.getElementById('clearSearchBtn');
+  
+  function filter() {
+    const term = searchInput.value.toLowerCase();
+    document.querySelectorAll('.action-btn').forEach(btn => {
+      const title = btn.querySelector('.btn-title')?.textContent.toLowerCase() || '';
+      const id = btn.querySelector('.btn-id')?.textContent.toLowerCase() || '';
+      const link = btn.querySelector('.btn-link-preview')?.textContent.toLowerCase() || '';
+      const match = !term || title.includes(term) || id.includes(term) || link.includes(term);
+      btn.style.display = match ? 'flex' : 'none';
+    });
+  }
+  
+  searchInput.addEventListener('input', filter);
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    filter();
+  });
+}
+
+function setupModals() {
+  document.getElementById('exportBtn').onclick = exportData;
+  document.getElementById('resetBtn').onclick = resetToDefaults;
+  
+  const importBtn = document.getElementById('importBtn');
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = '.json';
+  fileInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => importData(ev.target.result);
+      reader.readAsText(file);
+    }
+    fileInput.value = '';
+  };
+  importBtn.onclick = () => fileInput.click();
+}
+
+function setupDarkMode() {
+  const btn = document.getElementById('darkModeBtn');
+  const isDark = localStorage.getItem('darkMode') === 'true';
+  if (isDark) document.body.classList.add('dark-mode');
+  btn.textContent = isDark ? '☀️ Light' : '🌙 Dark';
+  btn.onclick = () => {
+    document.body.classList.toggle('dark-mode');
+    const dark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('darkMode', dark);
+    btn.textContent = dark ? '☀️ Light' : '🌙 Dark';
+  };
+}
+
+function escapeHtml(str) {
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
+}
+
+// INITIALIZATION
+function init() {
+  initDefaultData();
+  const loaded = loadFromLocalStorage();
+  rebuildTabs();
+  rebuildAllButtons();
+  setupSearch();
+  setupModals();
+  setupDarkMode();
+  showNotification(loaded ? 'Ready (custom config loaded)' : 'Ready (default config)');
+}
+
+init();
+</script>
+</body>
+</html>
