@@ -2,7 +2,7 @@ https://youtu.be/1oY9ofjH2_o?si=xMFzPlkSeqHFyZdK
 
 ## **Current Features - StartDesktop Browswer Control** 
 ### Test our StartDesktop Browser Control: 
-     http://me2pc.com](https://me2pc.com/index.php/start-desktop-user-interface)/
+     http://me2pc.com/index.php/start-desktop-user-interface
 
 ### **Test the Webtop Desktop here: http://offternet.atwebpages.com/**
 
