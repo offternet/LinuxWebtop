@@ -22,15 +22,15 @@ https://youtu.be/1oY9ofjH2_o?si=xMFzPlkSeqHFyZdK
 ### -Drag & Drop moving of buttons on same page
 
 ### -Switch from Light to Dark theme
-# Linux Webtop Process
+# StartDesktop Process
 
 Video on youtube: https://youtu.be/0cKoVyqZNIc?si=SaL95AqwEb2G3bzj
 
 ### Execute commands, launch programs and open websites from browser on any X-Windows desktop.
 
-### You can also use our Webtop Process to turn a html webpage(s) into Graphical User interface "GUI" for any bash powered program. And so much more. Now, creating a custom GUI is much easier than ever before using our new Linking and Browser Command Execution process.
+### You can also use our StartDesktop Process to turn a html webpage(s) into Graphical User interface "GUI" for any bash powered program. And so much more. Now, creating a custom GUI is much easier than ever before using our new Linking and Browser Command Execution process.
 
-**The complete Linux Webtop process is very easy to implement, customize and to use.**
+**The complete StartDesktop process is very easy to implement, customize and to use.**
 
 **The StartDesktop process consists of 2 separate parts**
 
@@ -105,10 +105,10 @@ Video on youtube: https://youtu.be/0cKoVyqZNIc?si=SaL95AqwEb2G3bzj
 
 - Tests to see if x-scheme-handlers associaton and update was successful and reports status
 
-- Provides test code you can use to see Linux Webtop is functioning properly.
+- Provides test code you can use to see StartDesktop is functioning properly.
 
 
-### **The Linux Webtop Process:**
+### **The StarDesktop Process:**
 **1. Register Custom url linuxapps:// in X-Windows x-scheme-handlers and associate it to "linuxapps"**
 
 - Using the standard X-Windows built-in x-scheme-handlers registraton process we associate "linuxapps" to a single Desktop Laucher "linuxApps.desktop". x-scheme-handlers are used by the X-Windows system to properly handle traditional url links like: http / https / ftp and our custom url link: linuxapps:// . 
